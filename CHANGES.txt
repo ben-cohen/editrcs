@@ -1,1 +1,3 @@
+v0.5.1, 2014-11-18 -- Fix import problem
+
 v0.5.0, 2014-11-18 -- Initial release

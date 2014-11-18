@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='editrcs',
-    version='0.5.0',
+    version='0.5.1',
     author='Ben Cohen',
     packages=['editrcs'],
     url='http://github.com/ben-cohen/editrcs',

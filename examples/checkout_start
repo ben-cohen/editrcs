@@ -1,0 +1,43 @@
+#!/usr/bin/python
+############################################################################
+# EditRCS: Python library to read, manipulate and write RCS ,v files
+#
+# Copyright (C) 2014 Ben Cohen
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+############################################################################
+#
+# checkout_start: print the earliest version (typically 1.1) of a RCS file to
+# standard output
+
+import sys
+import editrcs
+
+if len(sys.argv) != 2:
+    sys.stderr.write("Usage: %s <rcsfile>\n"%sys.argv[0])
+    exit(1)
+
+# Load the RCS file
+with open(sys.argv[1], 'r') as content_file:
+    content = content_file.read()
+rcs = editrcs.ParseRcs(content)
+
+# Get the head revision, and repeatedly get that revision's "next" revision
+# until the start is reached
+rev = rcs.getDelta(rcs.getHead())
+text = rev.getText()
+while rev.getNext() != '':
+    rev = rcs.getDelta(rev.getNext())
+    text = editrcs.TextFromDiff(text, rev.getText())
+sys.stdout.write(text)

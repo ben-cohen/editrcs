@@ -1,0 +1,38 @@
+#!/usr/bin/python
+############################################################################
+# EditRCS: Python library to read, manipulate and write RCS ,v files
+#
+# Copyright (C) 2014 Ben Cohen
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+############################################################################
+#
+# pivot_branch: given a branch (or the trunk) head [B.B]*.B.X and a
+# first-level branch head off that [B.B]*.B.L.Y.Y, swap the sub-branch and the
+# main branch.
+#
+# Version numbers will start beyond the existing version numbers to prevent
+# future ambiguity, but the same branch numbers will be used.  Sub-branches
+# will be renumbered appropriately.  Revision numbers will be renumbered in
+# symbols and locks but external files, comments, etc. referring to revision
+# numbers will have to be adjusted separately.
+#
+# Repeated application allows sub-branches to be pivoted as well.
+#
+# For example, 1.2.1.5 and 1.2.1.2.2.6 can be pivoted at 1.2.1.2, so that 
+# revisions 1.2.1.3--1.2.1.5 become 1.2.1.2.2.7--1.2.1.2.2.9 and
+# 1.2.1.2.2.1--1.2.1.2.2.6 become 1.2.1.6--1.2.1.11.
+#
+
+# TODO

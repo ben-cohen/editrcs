@@ -1,0 +1,123 @@
+#!/usr/bin/python
+############################################################################
+# EditRCS: Python library to read, manipulate and write RCS ,v files
+#
+# Copyright (C) 2014 Ben Cohen
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+############################################################################
+#
+# rcs_join: given two RCS files, produce an RCS file with the history of the
+# first file followed by that of the second (and the revision numbers of the 
+# second appropriately incremented).  The global metadata from the second
+# file will be used, but symbols and locks will be added from the first 
+# file.
+#
+# It will refuse to do so if the head revision of the first RCS file is not the
+# same as the start (typically 1.1) revision of the second.  (If they are not 
+# the same you can always check in a new revision at the head of the first RCS
+# file.)
+#
+# NB If you have anything else (external files, comments, etc.) referring
+# to revision numbers in the second file, these will need to be adjusted 
+# separately.
+
+import sys
+import editrcs
+
+if len(sys.argv) != 4:
+    sys.stderr.write("Usage: %s <rcsfile1> <rcsfile2> <outputrcsfile>\n"
+                     %sys.argv[0])
+    exit(1)
+
+# Load the first RCS file
+with open(sys.argv[1], 'r') as content_file:
+    first_content = content_file.read()
+first_rcs = editrcs.ParseRcs(first_content)
+first_head = first_rcs.getHead()
+
+# Load the second RCS file
+with open(sys.argv[2], 'r') as content_file:
+    second_content = content_file.read()
+second_rcs = editrcs.ParseRcs(second_content)
+
+# Find the start revision of the second file: get the head revision, and
+# repeatedly get that revision's "next" revision until the start is reached
+rev = second_rcs.getDelta(second_rcs.getHead())
+text = rev.getText()
+while rev.getNext() != '':
+    rev = second_rcs.getDelta(rev.getNext())
+    text = editrcs.TextFromDiff(text, rev.getText())
+second_start = rev.getRevision()
+
+# Compare that with the head of the first file
+if text != first_rcs.getDelta(first_head).getText():
+    sys.stderr.write("Revision %s of %s doesn't match revision %s of %s\n"
+                     %(first_head, sys.argv[1], second_start, sys.argv[2]))
+    exit(1)
+
+# Compute delta := first_head - second_start + "0.1"
+# Increment all the revision numbers in the second file by delta
+delta = editrcs.DecrementNum(first_head, second_start)
+delta = editrcs.IncrementNum(delta, "0.1")
+
+# Increment every num in the second file
+def IncrementDelta(d):
+    global second_start, delta
+    rev = d.getRevision()
+    d.setRevision(editrcs.IncrementNum(rev, delta))
+    if rev == second_start:
+        second_start = d.getRevision()
+    d.setNext(editrcs.IncrementNum(d.getNext(), delta))
+
+    # Increment versions in branches field
+    d.setBranches([editrcs.IncrementNum(n, delta) for n in d.getBranches()])
+
+second_rcs.mapDeltas(IncrementDelta)
+second_rcs.setHead(editrcs.IncrementNum(second_rcs.getHead(), delta))
+second_rcs.setBranch(editrcs.IncrementNum(second_rcs.getBranch(), delta))
+
+# Increment versions in symbols field
+second_rcs.setSymbols({key:editrcs.IncrementNum(val, delta) 
+                        for key, val in second_rcs.getSymbols().iteritems()})
+
+# Increment versions in locks field
+second_rcs.setLocks({key:editrcs.IncrementNum(val, delta)
+                     for key, val in second_rcs.getLocks().iteritems()})
+
+# First file symbols, locks need to be added to the second file
+second_rcs.setSymbols(dict(first_rcs.getSymbols().items()
+                           + second_rcs.getSymbols().items()))
+second_rcs.setLocks(dict(first_rcs.getLocks().items()
+                         + second_rcs.getLocks().items()))
+
+# Now add each of the deltas from the first file to the second file
+first_rcs.mapDeltas(lambda d: second_rcs.addDelta(d.getRevision(), d))
+
+# What was the text for the first file's last delta now needs to be a diff
+# in the middle of the trunk.  first_head and second_start are the same so
+# we can use first_head_rev on itself here.
+first_head_rev = second_rcs.getDelta(first_head)
+first_head_rev.textToDiff(first_head_rev)
+second_start_rev = second_rcs.getDelta(second_start)
+second_start_rev.setNext(first_head)
+
+# Add a message for the old start
+second_start_rev.setLog("Revision added by %s combining %s and %s\n"
+                        %(sys.argv[0], sys.argv[1], sys.argv[2]))
+
+# Finally write out the new RCS file
+f = open(sys.argv[3], 'w')
+f.write(second_rcs.toString())
+f.close()

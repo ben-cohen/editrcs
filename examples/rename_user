@@ -1,0 +1,51 @@
+#!/usr/bin/python
+############################################################################
+# EditRCS: Python library to read, manipulate and write RCS ,v files
+#
+# Copyright (C) 2014 Ben Cohen
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+############################################################################
+#
+# rename_user: replace an old user name with a new one for each revision
+# checked in by that user.
+#
+# e.g.  rename_user rcsfile,v changed,v ben bencohen
+
+import sys
+import editrcs
+
+if len(sys.argv) != 5:
+    sys.stderr.write("Usage: %s <rcssrcfile> <rcsdstfile> <srcuser> <dstuser>\n"
+                     %sys.argv[0])
+    exit(1)
+
+# Load the RCS file
+with open(sys.argv[1], 'r') as content_file:
+    content = content_file.read()
+rcs = editrcs.ParseRcs(content)
+
+# Define a function that acts on a delta, where if the author matches 
+# <srcuser>, it changes it to <dstuser>.
+def changeAuthor(delta):
+    if delta.getAuthor() == sys.argv[3]:
+        delta.setAuthor(sys.argv[4])
+
+# Apply that function to all the deltas
+rcs.mapDeltas(changeAuthor)
+
+# Write out the new RCS file
+f = open(sys.argv[2], 'w')
+f.write(rcs.toString())
+f.close()

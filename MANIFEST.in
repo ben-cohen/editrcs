@@ -1,0 +1,6 @@
+include LICENSE.txt
+include CHANGES.txt
+include examples/checkout_start
+include examples/pivot_branch
+include examples/rcs_join
+include examples/rename_user

@@ -123,15 +123,15 @@ def StringToDate(s):
 
     if not (0 <= Y < 100 or 2000 <= Y):
         raise RcsError("Invalid year value in date %s"%s)
-    if not 01 <= MM <= 12:
+    if not 1 <= MM <= 12:
         raise RcsError("Invalid month value in date %s"%s)
-    if not 01 <= DD <= 31:
+    if not 1 <= DD <= 31:
         raise RcsError("Invalid day value in date %s"%s)
-    if not 00 <= hh <= 23:
+    if not 0 <= hh <= 23:
         raise RcsError("Invalid hour value in date %s"%s)
-    if not 00 <= mm <= 59:
+    if not 0 <= mm <= 59:
         raise RcsError("Invalid minute value in date %s"%s)
-    if not 00 <= ss <= 60:      # ss can be 60 according to rcsfile5
+    if not 0 <= ss <= 60:      # ss can be 60 according to rcsfile5
         raise RcsError("Invalid second value in date %s"%s)
     
     if Y < 100:
@@ -144,16 +144,16 @@ def DateToString(Y, MM, DD, hh, mm, ss):
     corresponding dotted RCS date."""
     if not Y >= 1900:
         raise RcsError("Invalid year value in date %s"%[Y, MM, DD, hh, mm, ss])
-    if not 01 <= MM <= 12:
+    if not 1 <= MM <= 12:
         raise RcsError("Invalid month value in date %s"%[Y, MM, DD, hh, mm, ss])
-    if not 01 <= DD <= 31:
+    if not 1 <= DD <= 31:
         raise RcsError("Invalid day value in date %s"%[Y, MM, DD, hh, mm, ss])
-    if not 00 <= hh <= 23:
+    if not 0 <= hh <= 23:
         raise RcsError("Invalid hour value in date %s"%[Y, MM, DD, hh, mm, ss])
-    if not 00 <= mm <= 59:
+    if not 0 <= mm <= 59:
         raise RcsError("Invalid minute value in date %s"%
                        [Y, MM, DD, hh, mm, ss])
-    if not 00 <= ss <= 60:      # ss can be 60 according to rcsfile5
+    if not 0 <= ss <= 60:      # ss can be 60 according to rcsfile5
         raise RcsError("Invalid second value in date %s"%
                        [Y, MM, DD, hh, mm, ss])
     

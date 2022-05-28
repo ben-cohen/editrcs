@@ -378,7 +378,7 @@ class Lexer:
         must_have is True, then raise an error saying err_tok was expected.
         Return the matching token as a string if it succeeded and None if
         it failed and must_have is False."""
-        #print "%s -> %s"%(regexp, self.text[self.offset:])
+        #print("%s -> %s"%(regexp, self.text[self.offset:]))
         skip_whitespace = "([%s]*)"%self.whitespace
         res = re.search("^" + skip_whitespace + regexp,
                         self.text[self.offset:],
@@ -390,7 +390,7 @@ class Lexer:
         else:
             (ws, tok,) = res.groups()
             self.offset += len(ws) + len(tok)
-        #print "%s -> %d"%(tok, self.offset)
+        #print("%s -> %d"%(tok, self.offset))
         return tok
 
     def getNum(self, must_have = True):

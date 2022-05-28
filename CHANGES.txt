@@ -1,3 +1,5 @@
+v0.5.2, 2022-05-28 -- Fixes for Python 3
+
 v0.5.1, 2014-11-18 -- Fix import problem
 
 v0.5.0, 2014-11-18 -- Initial release

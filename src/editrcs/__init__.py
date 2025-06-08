@@ -65,6 +65,8 @@ def AddAtQuoting(s):
 
 def RemoveAtQuoting(s):
     """Return the string s with RCS at quoting removed."""
+    if s is None:
+        return ''
     assert(s[0] == '@' and s[-1] == '@')    
     return s[1:-1].replace('@@', '@')
 
@@ -809,7 +811,7 @@ class Rcs:
         This function expects value to be a boolean (unless to_bool is
         False)."""
         if to_bool:
-            if value not in [None, ""]:
+            if self.__strict not in [None, ""]:
                 raise RcsError("strict can only be None or \"\"")
             return self.__strict == ""
         else:
@@ -969,7 +971,9 @@ def ParseRcs(text):
     lex.getSemicolon()
 
     if lex.getKw("branch", False) != None:
-        rcs.setBranch(lex.getNum())
+        t = lex.getNum(False)
+        if t is not None:
+            rcs.setBranch(t, False)
         lex.getSemicolon()
 
     t = lex.getKw("access")

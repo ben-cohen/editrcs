@@ -1062,7 +1062,7 @@ def ParseRcs(text):
             if t == None:
                 break
             branches_list.append(t)
-        delta.setBranches(" ".join(branches_list))
+        delta.setBranches(branches_list)
         lex.getSemicolon()
 
         lex.getKw("next")

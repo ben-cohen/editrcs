@@ -66,7 +66,7 @@ def AddAtQuoting(s):
 def RemoveAtQuoting(s):
     """Return the string s with RCS at quoting removed."""
     if s is None:
-        return ''
+        return None
     assert(s[0] == '@' and s[-1] == '@')    
     return s[1:-1].replace('@@', '@')
 

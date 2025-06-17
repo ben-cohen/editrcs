@@ -807,9 +807,7 @@ class Rcs:
     def getStrict(self, to_bool = True):
         """Get the strict field.  If set then RCS requires a user to hold 
         a lock on a revision before being allowed to check in the next
-        revision.
-        This function expects value to be a boolean (unless to_bool is
-        False)."""
+        revision."""
         if to_bool:
             if self.__strict not in [None, ""]:
                 raise RcsError("strict can only be None or \"\"")

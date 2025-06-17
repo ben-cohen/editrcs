@@ -65,6 +65,8 @@ def AddAtQuoting(s):
 
 def RemoveAtQuoting(s):
     """Return the string s with RCS at quoting removed."""
+    if s is None:
+        return None
     assert(s[0] == '@' and s[-1] == '@')    
     return s[1:-1].replace('@@', '@')
 
@@ -580,7 +582,7 @@ class RcsDelta:
             self.__log = value
 
     def getLog(self, handle_quoting = True):
-        """Set the log field given by the user for this revision.  If
+        """Get the log field given by the user for this revision.  If
         handle_quoting then the RCS at quoting will be removed."""
         if handle_quoting:
             return RemoveAtQuoting(self.__log)
@@ -799,18 +801,18 @@ class Rcs:
                 value = None
         else:
             if value not in [None, ""]:
-                raise RcsError("struct can only be None or \"\"")
+                raise RcsError("strict can only be None or \"\"")
         self.__strict = value
         
     def getStrict(self, to_bool = True):
         """Get the strict field.  If set then RCS requires a user to hold 
         a lock on a revision before being allowed to check in the next
         revision.
-        This function expects value to be a boolean (unless from_bool is
+        This function expects value to be a boolean (unless to_bool is
         False)."""
         if to_bool:
-            if value not in [None, ""]:
-                raise RcsError("struct can only be None or \"\"")
+            if self.__strict not in [None, ""]:
+                raise RcsError("strict can only be None or \"\"")
             return self.__strict == ""
         else:
             return self.__strict
@@ -845,7 +847,7 @@ class Rcs:
             self.__comment = value
         
     def getComment(self, handle_quoting = True):
-        """Set the comment field.  This is an obsolete option used by old
+        """Get the comment field.  This is an obsolete option used by old
         RCS versions for $Log$.
         If handle_quoting then the RCS at quoting will be removed."""
         if handle_quoting:
@@ -969,7 +971,9 @@ def ParseRcs(text):
     lex.getSemicolon()
 
     if lex.getKw("branch", False) != None:
-        rcs.setBranch(lex.getNum())
+        t = lex.getNum(False)
+        if t is not None:
+            rcs.setBranch(t, False)
         lex.getSemicolon()
 
     t = lex.getKw("access")
@@ -1058,7 +1062,7 @@ def ParseRcs(text):
             if t == None:
                 break
             branches_list.append(t)
-        delta.setBranches(" ".join(branches_list))
+        delta.setBranches(branches_list)
         lex.getSemicolon()
 
         lex.getKw("next")
